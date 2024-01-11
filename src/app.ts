@@ -27,7 +27,9 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 var MONGO_URL =
-  "mongodb+srv://vachhetahardik987:3DlCuPO1wknLlZ82@hardik.ebxu8h3.mongodb.net/?retryWrites=true&w=majority";
+  "mongodb+srv://vachhetahardik987:SqqZbcM4y9y9u6PT@cluster0.bruv1o0.mongodb.net/?retryWrites=true&w=majority";
+// "mongodb+srv://vachhetahardik987:SqqZbcM4y9y9u6PT@hardik.ebxu8h3.mongodb.net/?retryWrites=true&w=majority";
+// "mongodb+srv://vachhetahardik987:3DlCuPO1wknLlZ82@hardik.ebxu8h3.mongodb.net/?retryWrites=true&w=majority";
 
 mongoose
   .connect(MONGO_URL, {
@@ -71,7 +73,6 @@ io.on("connection", (socket: Socket) => {
     console.log("User disconnected");
   });
 });
-
 
 const PORT: number | string = process.env.APP_PORT || 3000;
 app.listen(PORT, () => {

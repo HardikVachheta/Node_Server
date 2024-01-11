@@ -4,8 +4,8 @@ interface IMessage extends Document {
   message: {
     text: string;
   };
-  users: Array<any>; // You might want to replace 'any' with a more specific type
-  sender: Types.ObjectId;
+  users: Array<string>; // You might want to replace 'any' with a more specific type
+  sender: string;
 }
 
 const messageSchema = new Schema<IMessage>(
@@ -15,7 +15,7 @@ const messageSchema = new Schema<IMessage>(
     },
     users: Array,
     sender: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: String,
       ref: "User",
       required: true,
     },

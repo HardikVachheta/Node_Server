@@ -842,9 +842,50 @@ export const getProcessDefinitionXml = async (req: Request, res: Response) => {
 
 import UserModel from "../models/userModel"; // Replace with your actual User model import
 
+// export const userLogin = async (req: Request, res: Response) => {
+//   try {
+//     const { username, password } = getCamundaCredentials(); // Define your function to get Camunda credentials
+//     const camundaApiUrl = getCamundaApiUrl();
+
+//     const requestData = {
+//       username: req.body.username,
+//       password: req.body.password,
+//     };
+
+//     const identityVerifyUrl = `${camundaApiUrl}/identity/verify`;
+
+//     const response = await axios.post(identityVerifyUrl, requestData, {
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//     });
+
+//     if (response.status === 200) {
+//       // Assuming you have a MongoDB model named 'UserModel'
+//         const user = new UserModel({
+//           username: req.body.username,
+//           password: req.body.password,
+//         });
+
+//         // Save the user to the database
+//         await user.save();
+//       // Create a new user document in MongoDB
+
+//       res.status(200).json(response.data);
+//     } else {
+//       throw new Error(
+//         `Identity verification failed. Camunda response: ${response.status}`
+//       );
+//     }
+//   } catch (error: any) {
+//     console.error("Error verifying identity:", error);
+//     res.status(500).json({ error: "Identity verification failed" });
+//   }
+// };
+
 export const userLogin = async (req: Request, res: Response) => {
   try {
-    const { username, password } = getCamundaCredentials(); // Define your function to get Camunda credentials
+    const { username, password } = getCamundaCredentials();
     const camundaApiUrl = getCamundaApiUrl();
 
     const requestData = {
@@ -856,29 +897,29 @@ export const userLogin = async (req: Request, res: Response) => {
 
     const response = await axios.post(identityVerifyUrl, requestData, {
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
     });
 
     if (response.status === 200) {
-      // Assuming you have a MongoDB model named 'UserModel'
-        const user = new UserModel({
-          username: req.body.username,
-          password: req.body.password,
-        });
+      const existingUser = await UserModel.findOne({ username: req.body.username });
+    
+      const newUser = {
+        username: req.body.username,
+        password: req.body.password, // You might want to hash the password before storing it
+      };
+      
+      if(!existingUser){
+        await UserModel.create(newUser);
 
-        // Save the user to the database
-        await user.save();
-      // Create a new user document in MongoDB
+      }
 
       res.status(200).json(response.data);
     } else {
-      throw new Error(
-        `Identity verification failed. Camunda response: ${response.status}`
-      );
+      throw new Error(`Identity verification failed. Camunda response: ${response.status}`);
     }
   } catch (error: any) {
-    console.error("Error verifying identity:", error);
-    res.status(500).json({ error: "Identity verification failed" });
+    console.error('Error verifying identity:', error);
+    res.status(500).json({ error: 'Identity verification failed' });
   }
 };
