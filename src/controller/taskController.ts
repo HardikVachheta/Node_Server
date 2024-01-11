@@ -1,14 +1,10 @@
 // controllers/taskController.ts
-import { Request, Response, response } from 'express';
-import axios from 'axios';
+import { Request, Response, response } from "express";
+import axios from "axios";
 
-import { getCamundaApiUrl, getCamundaCredentials } from '../common';
-import fs from 'fs';
-import path from 'path';
-
-
-
-
+import { getCamundaApiUrl, getCamundaCredentials } from "../common";
+import fs from "fs";
+import path from "path";
 
 // Task controller
 export const getTasksForUser = async (req: Request, res: Response) => {
@@ -26,7 +22,9 @@ export const getTasksForUser = async (req: Request, res: Response) => {
     const tasksUrl = `${camundaApiUrl}/task?assignee=${assignee}`;
 
     // Authenticate with Camunda API using Basic Authentication
-    const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString("base64")}`;
+    const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString(
+      "base64"
+    )}`;
 
     // Make an HTTP GET request to retrieve tasks
     const response = await axios.get(tasksUrl, {
@@ -38,7 +36,9 @@ export const getTasksForUser = async (req: Request, res: Response) => {
     if (response.status === 200) {
       res.status(200).json(response.data);
     } else {
-      throw new Error(`Failed to retrieve tasks. Camunda response: ${response.status}`);
+      throw new Error(
+        `Failed to retrieve tasks. Camunda response: ${response.status}`
+      );
     }
   } catch (error: any) {
     console.error("Error retrieving tasks:", error.message);
@@ -62,7 +62,9 @@ export const getTaskDetailById = async (req: Request, res: Response) => {
     const taskDetailUrl = `${camundaApiUrl}/task/${taskInstanceId}`;
 
     // Authenticate with Camunda API using Basic Authentication
-    const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString("base64")}`;
+    const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString(
+      "base64"
+    )}`;
 
     // Make an HTTP GET request to retrieve task details
     const taskDetailResponse = await axios.get(taskDetailUrl, {
@@ -88,8 +90,11 @@ export const getTaskDetailById = async (req: Request, res: Response) => {
 
         // const mergedResponse = { taskDetail, taskVariables };
         const taskDefinitionKey = taskDetail.taskDefinitionKey;
-        const updateTaskDetailResponse = await updateTaskDetailByTaskDefinitionKey(res, taskDefinitionKey);
-        return res.status(200).json({ taskDetail, taskVariables, ...updateTaskDetailResponse });
+        const updateTaskDetailResponse =
+          await updateTaskDetailByTaskDefinitionKey(res, taskDefinitionKey);
+        return res
+          .status(200)
+          .json({ taskDetail, taskVariables, ...updateTaskDetailResponse });
       }
     }
   } catch (error: any) {
@@ -97,8 +102,6 @@ export const getTaskDetailById = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Failed to retrieve task details" });
   }
 };
-
-
 
 export const getCompletedTaskDetails = async (req: Request, res: Response) => {
   try {
@@ -108,7 +111,9 @@ export const getCompletedTaskDetails = async (req: Request, res: Response) => {
     const taskDetailUrl = `${camundaApiUrl}/history/task?finished=true`;
 
     // Authenticate with Camunda API using Basic Authentication
-    const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString("base64")}`;
+    const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString(
+      "base64"
+    )}`;
 
     // Make an HTTP GET request to retrieve completed task details
     const taskDetailResponse = await axios.get(taskDetailUrl, {
@@ -126,12 +131,16 @@ export const getCompletedTaskDetails = async (req: Request, res: Response) => {
     }
   } catch (error: any) {
     console.error("Error retrieving completed task details:", error.message);
-    res.status(500).json({ error: "Failed to retrieve completed task details" });
+    res
+      .status(500)
+      .json({ error: "Failed to retrieve completed task details" });
   }
 };
 
-
-export const updateTaskDetailByTaskDefinitionKey = async (res: Response, taskDefinitionKey: any) => {
+export const updateTaskDetailByTaskDefinitionKey = async (
+  res: Response,
+  taskDefinitionKey: any
+) => {
   try {
     // const taskDefinitionKey = req.query.taskDefinitionKey as string;
     const fileName = `${taskDefinitionKey}.json`;
@@ -140,8 +149,8 @@ export const updateTaskDetailByTaskDefinitionKey = async (res: Response, taskDef
       throw new Error("Task definition key query parameter is missing.");
     }
 
-    const jsonDataPath = path.join(__dirname, '..', 'data', fileName);
-    const updatedData = JSON.parse(fs.readFileSync(jsonDataPath, 'utf8'));
+    const jsonDataPath = path.join(__dirname, "..", "data", fileName);
+    const updatedData = JSON.parse(fs.readFileSync(jsonDataPath, "utf8"));
 
     return { updatedData };
   } catch (error: any) {
@@ -149,7 +158,6 @@ export const updateTaskDetailByTaskDefinitionKey = async (res: Response, taskDef
     return { error: "Failed to update task details" };
   }
 };
-
 
 export const updateTaskDetail = async (req: Request, res: Response) => {
   try {
@@ -161,19 +169,23 @@ export const updateTaskDetail = async (req: Request, res: Response) => {
     const processInstanceId = req.query.processInstanceId as string;
 
     if (!taskDefinitionKey || !processInstanceId) {
-      throw new Error("Task definition key and/or process instance ID query parameters are missing.");
+      throw new Error(
+        "Task definition key and/or process instance ID query parameters are missing."
+      );
     }
 
     // Construct the URL for updating the task details
     const updateTaskUrl = `${camundaApiUrl}/task?processInstanceId=${processInstanceId}&taskDefinitionKey=${taskDefinitionKey}`;
 
     // Authenticate with Camunda API using Basic Authentication
-    const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString("base64")}`;
+    const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString(
+      "base64"
+    )}`;
 
     // Make an HTTP GET request to retrieve the task based on taskDefinitionKey and processInstanceId
     const response = await axios.get(updateTaskUrl, {
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         Authorization: authHeader,
       },
     });
@@ -192,24 +204,37 @@ export const updateTaskDetail = async (req: Request, res: Response) => {
         const updateTaskDetailUrl = `${camundaApiUrl}/task/${taskInstanceId}`;
 
         // Make an HTTP PUT request to update the task details
-        const updateResponse = await axios.put(updateTaskDetailUrl, updatedData, {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: authHeader,
-          },
-        });
+        const updateResponse = await axios.put(
+          updateTaskDetailUrl,
+          updatedData,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: authHeader,
+            },
+          }
+        );
 
         if (updateResponse.status === 204) {
           // The task details were successfully updated
           res.status(204).send(); // No content
         } else {
-          res.status(updateResponse.status).json({ error: "Failed to update task details in Camunda." });
+          res
+            .status(updateResponse.status)
+            .json({ error: "Failed to update task details in Camunda." });
         }
       } else {
-        res.status(404).json({ error: "No task found matching the provided task definition key and process instance." });
+        res
+          .status(404)
+          .json({
+            error:
+              "No task found matching the provided task definition key and process instance.",
+          });
       }
     } else {
-      res.status(response.status).json({ error: "Failed to retrieve task from Camunda API." });
+      res
+        .status(response.status)
+        .json({ error: "Failed to retrieve task from Camunda API." });
     }
   } catch (error: any) {
     console.error("Error updating task details:", error.message);
@@ -217,7 +242,10 @@ export const updateTaskDetail = async (req: Request, res: Response) => {
   }
 };
 
-export const getTaskDetailByProcessInstance = async (req: Request, res: Response) => {
+export const getTaskDetailByProcessInstance = async (
+  req: Request,
+  res: Response
+) => {
   try {
     const camundaApiUrl = getCamundaApiUrl();
     const { username, password } = getCamundaCredentials();
@@ -233,7 +261,9 @@ export const getTaskDetailByProcessInstance = async (req: Request, res: Response
     const taskListUrl = `${camundaApiUrl}/task?processInstanceId=${processInstanceId}`;
 
     // Authenticate with Camunda API using Basic Authentication
-    const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString("base64")}`;
+    const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString(
+      "base64"
+    )}`;
 
     // Make an HTTP GET request to retrieve the task list
     const response = await axios.get(taskListUrl, {
@@ -249,10 +279,14 @@ export const getTaskDetailByProcessInstance = async (req: Request, res: Response
         // You have retrieved all tasks associated with the process instance
         res.status(200).json({ taskList });
       } else {
-        res.status(404).json({ error: "No tasks found for the provided process instance." });
+        res
+          .status(404)
+          .json({ error: "No tasks found for the provided process instance." });
       }
     } else {
-      res.status(response.status).json({ error: "Failed to retrieve task list from Camunda API." });
+      res
+        .status(response.status)
+        .json({ error: "Failed to retrieve task list from Camunda API." });
     }
   } catch (error: any) {
     console.error("Error retrieving task details:", error.message);
@@ -260,9 +294,10 @@ export const getTaskDetailByProcessInstance = async (req: Request, res: Response
   }
 };
 
-
-
-export const getTaskDataByTaskDefinitionKey = async (req: Request, res: Response) => {
+export const getTaskDataByTaskDefinitionKey = async (
+  req: Request,
+  res: Response
+) => {
   try {
     // Replace with your actual Camunda API URL and credentials retrieval logic
     const camundaApiUrl = getCamundaApiUrl();
@@ -279,7 +314,9 @@ export const getTaskDataByTaskDefinitionKey = async (req: Request, res: Response
     const taskDataUrl = `${camundaApiUrl}/task?taskDefinitionKey=${taskDefinitionKey}`;
 
     // Authenticate with Camunda API using Basic Authentication
-    const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString("base64")}`;
+    const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString(
+      "base64"
+    )}`;
 
     // Make an HTTP GET request to retrieve the task data
     const response = await axios.get(taskDataUrl, {
@@ -294,14 +331,15 @@ export const getTaskDataByTaskDefinitionKey = async (req: Request, res: Response
       // Return the task data in the response
       res.status(200).json({ taskData });
     } else {
-      res.status(response.status).json({ error: "Failed to retrieve task data from Camunda API." });
+      res
+        .status(response.status)
+        .json({ error: "Failed to retrieve task data from Camunda API." });
     }
   } catch (error: any) {
     console.error("Error retrieving task data:", error.message);
     res.status(500).json({ error: "Failed to retrieve task data" });
   }
 };
-
 
 export const completeTaskById = async (req: Request, res: Response) => {
   try {
@@ -320,21 +358,22 @@ export const completeTaskById = async (req: Request, res: Response) => {
     const completeTaskUrl = `${camundaApiUrl}/task/${taskInstanceId}/complete`;
 
     // Authenticate with Camunda API using Basic Authentication
-    const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString("base64")}`;
+    const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString(
+      "base64"
+    )}`;
 
     // Variables to complete the task with
     const taskCompletionData = {
       variables: {
-        "variables":
-          { "aVariable": { "value": "aStringValue" } }
-      }
+        variables: { aVariable: { value: "aStringValue" } },
+      },
     };
 
     // Make an HTTP POST request to complete the task with variables
     const response = await axios.post(completeTaskUrl, taskCompletionData, {
       headers: {
         Authorization: authHeader,
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     });
 
@@ -342,32 +381,39 @@ export const completeTaskById = async (req: Request, res: Response) => {
       // Task completion was successful
       res.status(200).json({ message: "Task completed successfully." });
     } else {
-      res.status(response.status).json({ error: "Failed to complete the task with variables." });
+      res
+        .status(response.status)
+        .json({ error: "Failed to complete the task with variables." });
     }
   } catch (error: any) {
     console.error("Error completing task with variables:", error.message);
-    console.error("Response details:", error.response ? error.response.data : "No response");
-    res.status(500).json({ error: "Failed to complete the task with variables" });
+    console.error(
+      "Response details:",
+      error.response ? error.response.data : "No response"
+    );
+    res
+      .status(500)
+      .json({ error: "Failed to complete the task with variables" });
   }
 };
 
-
-
-
-
-
-export const listTasksByCandidateGroup = async (req: Request, res: Response) => {
+export const listTasksByCandidateGroup = async (
+  req: Request,
+  res: Response
+) => {
   try {
     const camundaApiUrl = getCamundaApiUrl();
     const { username, password } = getCamundaCredentials();
     const listTasksUrl = `${camundaApiUrl}/task/?withCandidateGroups=true`;
 
-    const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`;;
+    const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString(
+      "base64"
+    )}`;
 
     const response = await axios.get(listTasksUrl, {
       headers: {
         Authorization: authHeader,
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     });
 
@@ -379,16 +425,17 @@ export const listTasksByCandidateGroup = async (req: Request, res: Response) => 
       return res.status(200).json([]);
     } else {
       // Handle other status codes as needed
-      return res.status(response.status).json({ error: 'Failed to retrieve tasks' });
+      return res
+        .status(response.status)
+        .json({ error: "Failed to retrieve tasks" });
     }
   } catch (error) {
-    console.error('Error listing tasks by candidate group:', error);
-    return res.status(500).json({ error: 'Failed to list tasks by candidate group' });
+    console.error("Error listing tasks by candidate group:", error);
+    return res
+      .status(500)
+      .json({ error: "Failed to list tasks by candidate group" });
   }
 };
-
-
-
 
 export const claimTask = async (req: Request, res: Response) => {
   try {
@@ -397,7 +444,9 @@ export const claimTask = async (req: Request, res: Response) => {
 
     const taskId = req.query.taskId;
     const claimTaskUrl = `${camundaApiUrl}/task/${taskId}/claim`;
-    const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`;
+    const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString(
+      "base64"
+    )}`;
 
     // Extract the userId from the request body
     const userId = req.query.userId;
@@ -410,21 +459,25 @@ export const claimTask = async (req: Request, res: Response) => {
       const response = await axios.post(claimTaskUrl, requestBody, {
         headers: {
           Authorization: authHeader,
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
 
       if (response.status === 204) {
         return res.status(204).send({ message: "task claim successfully" });
       } else {
-        return res.status(response.status).json({ error: 'Failed to claim the task' });
+        return res
+          .status(response.status)
+          .json({ error: "Failed to claim the task" });
       }
     } else {
-      return res.status(400).json({ error: 'userId is required in the request body' });
+      return res
+        .status(400)
+        .json({ error: "userId is required in the request body" });
     }
   } catch (error) {
-    console.error('Error claiming the task:', error);
-    return res.status(500).json({ error: 'Failed to claim the task' });
+    console.error("Error claiming the task:", error);
+    return res.status(500).json({ error: "Failed to claim the task" });
   }
 };
 
@@ -435,7 +488,9 @@ export const unclaimTask = async (req: Request, res: Response) => {
 
     const taskId = req.query.taskId;
     const unclaimTaskUrl = `${camundaApiUrl}/task/${taskId}/unclaim`;
-    const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`;
+    const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString(
+      "base64"
+    )}`;
 
     const response = await axios.post(unclaimTaskUrl, null, {
       headers: {
@@ -444,13 +499,15 @@ export const unclaimTask = async (req: Request, res: Response) => {
     });
 
     if (response.status === 204) {
-      return res.status(204).send({ message: 'Task unclaimed successfully' });
+      return res.status(204).send({ message: "Task unclaimed successfully" });
     } else {
-      return res.status(response.status).json({ error: 'Failed to unclaim the task' });
+      return res
+        .status(response.status)
+        .json({ error: "Failed to unclaim the task" });
     }
   } catch (error) {
-    console.error('Error unclaiming the task:', error);
-    return res.status(500).json({ error: 'Failed to unclaim the task' });
+    console.error("Error unclaiming the task:", error);
+    return res.status(500).json({ error: "Failed to unclaim the task" });
   }
 };
 
@@ -465,7 +522,9 @@ export const getHistoricalTaskDetails = async (req: Request, res: Response) => {
     const historicalTaskDetailsUrl = `${camundaApiUrl}/history/task?taskId=${taskId}`;
 
     // Authenticate with Camunda API using Basic Authentication
-    const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString("base64")}`;
+    const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString(
+      "base64"
+    )}`;
 
     // Make an HTTP GET request to retrieve historical task details
     const response = await axios.get(historicalTaskDetailsUrl, {
@@ -477,15 +536,17 @@ export const getHistoricalTaskDetails = async (req: Request, res: Response) => {
     if (response.status === 200) {
       res.status(200).json(response.data);
     } else {
-      throw new Error(`Failed to retrieve historical task details. Camunda response: ${response.status}`);
+      throw new Error(
+        `Failed to retrieve historical task details. Camunda response: ${response.status}`
+      );
     }
   } catch (error: any) {
     console.error("Error retrieving historical task details:", error.message);
-    res.status(500).json({ error: "Failed to retrieve historical task details" });
+    res
+      .status(500)
+      .json({ error: "Failed to retrieve historical task details" });
   }
 };
-
-
 
 export const createTaskComment = async (req: Request, res: Response) => {
   try {
@@ -503,7 +564,9 @@ export const createTaskComment = async (req: Request, res: Response) => {
     const commentUrl = `${camundaApiUrl}/task/${taskId}/comment/create`;
 
     // Authenticate with Camunda API using Basic Authentication
-    const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString("base64")}`;
+    const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString(
+      "base64"
+    )}`;
 
     // Data for creating a comment
     const commentData = {
@@ -515,14 +578,16 @@ export const createTaskComment = async (req: Request, res: Response) => {
     const response = await axios.post(commentUrl, commentData, {
       headers: {
         Authorization: authHeader,
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     });
 
     if (response.status === 200) {
       res.status(200).json(response.data);
     } else {
-      throw new Error(`Failed to create a comment. Camunda response: ${response.status}`);
+      throw new Error(
+        `Failed to create a comment. Camunda response: ${response.status}`
+      );
     }
   } catch (error: any) {
     console.error("Error creating a comment:", error.message);
@@ -540,31 +605,38 @@ export const getTaskComment = async (req: Request, res: Response) => {
     // const commentId = req.query.commentId as string;
 
     if (!taskId) {
-      return res.status(400).json({ error: "Task ID or comment ID is missing or empty." });
+      return res
+        .status(400)
+        .json({ error: "Task ID or comment ID is missing or empty." });
     }
 
     const commentUrl = `${camundaApiUrl}/task/${taskId}/comment`;
 
-    const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString("base64")}`;
+    const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString(
+      "base64"
+    )}`;
 
     const response = await axios.get(commentUrl, {
       headers: {
         Authorization: authHeader,
-        'Accept': 'application/json',
+        Accept: "application/json",
       },
     });
 
     if (response.status === 200) {
       res.status(200).json(response.data);
     } else {
-      return res.status(500).json({ error: `Failed to retrieve the comment. Camunda response: ${response.status}` });
+      return res
+        .status(500)
+        .json({
+          error: `Failed to retrieve the comment. Camunda response: ${response.status}`,
+        });
     }
   } catch (error: any) {
     console.error("Error retrieving the comment:", error.message);
     res.status(500).json({ error: "Failed to retrieve the comment" });
   }
 };
-
 
 export const getHistoryOperation = async (req: Request, res: Response) => {
   try {
@@ -573,12 +645,14 @@ export const getHistoryOperation = async (req: Request, res: Response) => {
     const taskId = req.query.taskId; // Assuming you pass the taskInstanceId as a query parameter
 
     if (!taskId) {
-      return res.status(400).json({ error: 'taskId is required' });
+      return res.status(400).json({ error: "taskId is required" });
     }
 
     // Build the URL and authorization header for the Camunda API
     const apiUrl = `${camundaApiUrl}/history/user-operation?taskId=${taskId}`;
-    const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`;
+    const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString(
+      "base64"
+    )}`;
 
     // Make an HTTP GET request to the Camunda API with the authorization header
     const response = await axios.get(apiUrl, {
@@ -592,18 +666,19 @@ export const getHistoryOperation = async (req: Request, res: Response) => {
 
       // Transform the Camunda API response into the desired format
 
-
       res.status(200).json(camundaResponseData);
     } else {
-      return res.status(500).json({ error: `Failed to retrieve data from Camunda API. Camunda response: ${response.status}` });
+      return res
+        .status(500)
+        .json({
+          error: `Failed to retrieve data from Camunda API. Camunda response: ${response.status}`,
+        });
     }
   } catch (error: any) {
-    console.error('Error retrieving data from Camunda API:', error.message);
-    res.status(500).json({ error: 'Failed to retrieve data from Camunda API' });
+    console.error("Error retrieving data from Camunda API:", error.message);
+    res.status(500).json({ error: "Failed to retrieve data from Camunda API" });
   }
 };
-
-
 
 export const getHistoricIdentityLink = async (req: Request, res: Response) => {
   try {
@@ -614,7 +689,9 @@ export const getHistoricIdentityLink = async (req: Request, res: Response) => {
     const apiUrl = `${camundaApiUrl}/history/identity-link-log`;
 
     // Create the basic authorization header
-    const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString("base64")}`;
+    const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString(
+      "base64"
+    )}`;
 
     // Make an HTTP GET request to the Camunda API with the authorization header
     const response = await axios.get(apiUrl, {
@@ -626,7 +703,11 @@ export const getHistoricIdentityLink = async (req: Request, res: Response) => {
     if (response.status === 200) {
       res.status(200).json(response.data);
     } else {
-      return res.status(500).json({ error: `Failed to retrieve data from Camunda API. Camunda response: ${response.status}` });
+      return res
+        .status(500)
+        .json({
+          error: `Failed to retrieve data from Camunda API. Camunda response: ${response.status}`,
+        });
     }
   } catch (error: any) {
     console.error("Error retrieving data from Camunda API:", error.message);
@@ -650,7 +731,9 @@ export const getIdentityGroup = async (req: Request, res: Response) => {
     const userGroupsUrl = `${camundaApiUrl}/identity/groups?userId=${assignee}`;
 
     // Authenticate with Camunda API using Basic Authentication
-    const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString("base64")}`;
+    const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString(
+      "base64"
+    )}`;
 
     // Make an HTTP GET request to retrieve user groups
     const response = await axios.get(userGroupsUrl, {
@@ -663,7 +746,9 @@ export const getIdentityGroup = async (req: Request, res: Response) => {
       // Handle the response as needed
       res.status(200).json(response.data);
     } else {
-      throw new Error(`Failed to retrieve user groups. Camunda response: ${response.status}`);
+      throw new Error(
+        `Failed to retrieve user groups. Camunda response: ${response.status}`
+      );
     }
   } catch (error: any) {
     console.error("Error retrieving user groups:", error.message);
@@ -678,12 +763,14 @@ export const getProcessDefinitionXml = async (req: Request, res: Response) => {
     const processDefinitionId = req.query.processDefinitionId as string; // Assuming you pass the process definition ID as a query parameter
 
     if (!processDefinitionId) {
-      return res.status(400).json({ error: 'processDefinitionId is required' });
+      return res.status(400).json({ error: "processDefinitionId is required" });
     }
 
     // Build the URL and authorization header for the Camunda API
     const apiUrl = `${camundaApiUrl}/engine/default/process-definition/${processDefinitionId}/xml`;
-    const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`;
+    const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString(
+      "base64"
+    )}`;
 
     // Make an HTTP GET request to the Camunda API with the authorization header
     const response = await axios.get(apiUrl, {
@@ -727,7 +814,6 @@ export const getProcessDefinitionXml = async (req: Request, res: Response) => {
       //           }
       //         });
 
-
       //       </script>
       //     </body>
       //   </html>
@@ -735,79 +821,64 @@ export const getProcessDefinitionXml = async (req: Request, res: Response) => {
 
       res.status(200).send(camundaResponseData);
     } else {
-      return res.status(500).json({ error: `Failed to retrieve process definition XML from Camunda API. Camunda response: ${response.status}` });
+      return res
+        .status(500)
+        .json({
+          error: `Failed to retrieve process definition XML from Camunda API. Camunda response: ${response.status}`,
+        });
     }
   } catch (error: any) {
-    console.error('Error retrieving process definition XML from Camunda API:', error.message);
-    res.status(500).json({ error: 'Failed to retrieve process definition XML from Camunda API' });
+    console.error(
+      "Error retrieving process definition XML from Camunda API:",
+      error.message
+    );
+    res
+      .status(500)
+      .json({
+        error: "Failed to retrieve process definition XML from Camunda API",
+      });
   }
 };
 
-
-import UserModel from '../models/userModel'; // Replace with your actual User model import
+import UserModel from "../models/userModel"; // Replace with your actual User model import
 
 export const userLogin = async (req: Request, res: Response) => {
   try {
-    // Use the common functionality
+    const { username, password } = getCamundaCredentials(); // Define your function to get Camunda credentials
     const camundaApiUrl = getCamundaApiUrl();
-    // const { username, password } = getCamundaCredentials();
 
-    // Data to be sent in the request body
     const requestData = {
       username: req.body.username,
       password: req.body.password,
     };
 
-    // URL for identity verification
     const identityVerifyUrl = `${camundaApiUrl}/identity/verify`;
 
-    // Make an HTTP POST request to verify the identity
     const response = await axios.post(identityVerifyUrl, requestData, {
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     });
 
     if (response.status === 200) {
-      // Handle the response as needed
+      // Assuming you have a MongoDB model named 'UserModel'
+        const user = new UserModel({
+          username: req.body.username,
+          password: req.body.password,
+        });
 
-      const { username, email, password } = req.body;
-      const user = new UserModel({ username, email, password });
-      await user.save();
-
+        // Save the user to the database
+        await user.save();
+      // Create a new user document in MongoDB
 
       res.status(200).json(response.data);
     } else {
-      throw new Error(`Identity verification failed. Camunda response: ${response.status}`);
+      throw new Error(
+        `Identity verification failed. Camunda response: ${response.status}`
+      );
     }
   } catch (error: any) {
-    console.error("Error verifying identity:", error.message);
+    console.error("Error verifying identity:", error);
     res.status(500).json({ error: "Identity verification failed" });
   }
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

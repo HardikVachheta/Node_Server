@@ -1,42 +1,25 @@
-import mongoose, { Document, Schema } from "mongoose";
+import { Schema, model, Document } from "mongoose";
 
-interface IUser extends Document {
+export interface IUser extends Document {
   username: string;
-  email: string;
-  password: string;
-  isAvatarImageSet: boolean;
-  avatarImage: string;
+  password: string
 }
 
-const userSchema: Schema<IUser> = new Schema<IUser>({
+const userSchema = new Schema<IUser>({
   username: {
     type: String,
     required: true,
-    min: 3,
-    max: 20,
+    minlength: 3,
+    maxlength: 20,
     unique: true,
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-    max: 50,
   },
   password: {
     type: String,
     required: true,
-    min: 8,
-  },
-  isAvatarImageSet: {
-    type: Boolean,
-    default: false,
-  },
-  avatarImage: {
-    type: String,
-    default: "",
-  },
+    // minlength: 6,
+  }
 });
 
-const UserModel = mongoose.model<IUser>("Users", userSchema);
+const UserModel = model<IUser>("Users", userSchema);
 
 export default UserModel;

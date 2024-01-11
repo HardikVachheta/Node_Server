@@ -1,19 +1,19 @@
-import mongoose, { Document, Schema, Types } from "mongoose";
+import mongoose, { Schema, model, Document, Types } from "mongoose";
 
 interface IMessage extends Document {
   message: {
     text: string;
   };
-  users: Types.Array<any>; // Adjust the type accordingly
+  users: Array<any>; // You might want to replace 'any' with a more specific type
   sender: Types.ObjectId;
 }
 
-const MessageSchema: Schema<IMessage> = new Schema<IMessage>(
+const messageSchema = new Schema<IMessage>(
   {
     message: {
       text: { type: String, required: true },
     },
-    users: [{}], // Adjust the type accordingly
+    users: Array,
     sender: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -25,6 +25,6 @@ const MessageSchema: Schema<IMessage> = new Schema<IMessage>(
   }
 );
 
-const MessageModel = mongoose.model<IMessage>("Messages", MessageSchema);
+const MessageModel = model<IMessage>("Messages", messageSchema);
 
 export default MessageModel;

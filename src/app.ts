@@ -7,6 +7,7 @@ import task from "./routes/taskRoutes";
 import filter from "./routes/filterRoutes";
 import count from "./routes/taskCountRoutes";
 import admin from "./routes/adminRoutes";
+import messages from "./routes/messages";
 import cors from "cors";
 import mongoose from "mongoose";
 import http from "http";
@@ -46,6 +47,7 @@ app.use("/api", task);
 app.use("/api", filter);
 app.use("/api", count);
 app.use("/api", admin);
+app.use("/api", messages);
 
 const onlineUsers: Map<string, string> = new Map();
 
