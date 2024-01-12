@@ -18,7 +18,7 @@ export const getMessages = async ( req: Request, res: Response, next: NextFuncti
       };
     });
 
-    res.json(projectedMessages);
+    res.status(200).json(projectedMessages);
   } catch (ex) {
     next(ex);
   }

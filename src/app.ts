@@ -17,7 +17,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new SocketIOServer(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: "http://localhost:3001",
     credentials: true,
   },
 });
@@ -32,10 +32,7 @@ var MONGO_URL =
 // "mongodb+srv://vachhetahardik987:3DlCuPO1wknLlZ82@hardik.ebxu8h3.mongodb.net/?retryWrites=true&w=majority";
 
 mongoose
-  .connect(MONGO_URL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  } as mongoose.ConnectOptions)
+  .connect(MONGO_URL)
   .then(() => {
     console.log("DB Connetion Successfull");
   })
@@ -66,6 +63,7 @@ io.on("connection", (socket: Socket) => {
     if (sendUserSocket) {
       socket.to(sendUserSocket).emit("msg-recieve", data.msg);
     }
+    console.log(sendUserSocket)
   });
 
   // Handle disconnection
