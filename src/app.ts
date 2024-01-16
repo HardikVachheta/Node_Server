@@ -51,29 +51,44 @@ app.use("/api", messages);
 const onlineUsers: Map<string, string> = new Map();
 
 io.on("connection", (socket: Socket) => {
-  console.log("A user connected");
+  console.log(`User connected: ${socket.id}`);
 
   // Handle events from the client
   socket.on("add-user", (userId: string) => {
     onlineUsers.set(userId, socket.id);
+    console.log(`User ${userId} added with socket ID: ${socket.id}`);
   });
 
   socket.on("send-msg", (data: { to: string; msg: string }) => {
+    console.log("send-msg :-",data)
     const sendUserSocket = onlineUsers.get(data.to);
     if (sendUserSocket) {
-      socket.to(sendUserSocket).emit("msg-recieve", data.msg);
+      io.to(sendUserSocket).emit("msg-recieve", data.msg);
+      console.log("msg-recieve :-",data)
     }
     console.log(sendUserSocket)
   });
 
+  socket.on("error", (error) => {
+    console.error("Socket connection error:", error);
+  });
   // Handle disconnection
+  // socket.on("disconnect", () => {
+  //   console.log("User disconnected");
+  // });
   socket.on("disconnect", () => {
-    console.log("User disconnected");
+    console.log(`User disconnected: ${socket.id}`);
+    onlineUsers.forEach((value, key) => {
+      if (value === socket.id) {
+        console.log(`Removing user ${key} from onlineUsers`);
+        onlineUsers.delete(key);
+      }
+    });
   });
 });
 
 const PORT: number | string = process.env.APP_PORT || 3000;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
 export default app;
