@@ -27,7 +27,9 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 var MONGO_URL =
-  "mongodb+srv://vachhetahardik987:SqqZbcM4y9y9u6PT@cluster0.bruv1o0.mongodb.net/?retryWrites=true&w=majority";
+// "mongodb://localhost:27017/temp"  hTTUMAN0SXfnZ3le
+  // "mongodb+srv://vachhetahardik987:SqqZbcM4y9y9u6PT@cluster0.bruv1o0.mongodb.net/?retryWrites=true&w=majority";
+  "mongodb+srv://vachhetahardik987:hTTUMAN0SXfnZ3le@cluster0.4fg4a.mongodb.net/?retryWrites=true&w=majority"
 // "mongodb+srv://vachhetahardik987:SqqZbcM4y9y9u6PT@hardik.ebxu8h3.mongodb.net/?retryWrites=true&w=majority";
 // "mongodb+srv://vachhetahardik987:3DlCuPO1wknLlZ82@hardik.ebxu8h3.mongodb.net/?retryWrites=true&w=majority";
 
