@@ -6,6 +6,7 @@ interface IMessage extends Document {
   };
   users: Array<string>; // You might want to replace 'any' with a more specific type
   sender: string;
+  createdAt: Date;
 }
 
 const messageSchema = new Schema<IMessage>(
