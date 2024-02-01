@@ -12,11 +12,11 @@ export const getMessages = async ( req: Request, res: Response, next: NextFuncti
     }).sort({ updatedAt: 1 });
 
     const projectedMessages = messages.map((msg) => {
-      console.log("check",msg)
+      
       return {
         fromSelf: msg.sender.toString() === from,
         message: msg.message.text,
-        createdAt: msg.createdAt,
+        createdAt: formatTimestamp(msg.createdAt),
       };
     });
 
@@ -25,6 +25,12 @@ export const getMessages = async ( req: Request, res: Response, next: NextFuncti
     next(ex);
   }
 };
+
+const formatTimestamp = (timestamp: Date) => {
+  const options: Intl.DateTimeFormatOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
+  return timestamp.toLocaleDateString('en-US', options);
+};
+
 
 export const addMessage = async ( req: Request, res: Response, next: NextFunction ) => {
   try {

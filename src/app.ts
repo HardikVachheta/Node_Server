@@ -74,10 +74,7 @@ io.on("connection", (socket: Socket) => {
   socket.on("error", (error) => {
     console.error("Socket connection error:", error);
   });
-  // Handle disconnection
-  // socket.on("disconnect", () => {
-  //   console.log("User disconnected");
-  // });
+ 
   socket.on("disconnect", () => {
     console.log(`User disconnected: ${socket.id}`);
     onlineUsers.forEach((value, key) => {
