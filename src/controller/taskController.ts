@@ -903,10 +903,11 @@ export const userLogin = async (req: Request, res: Response) => {
 
     if (response.status === 200) {
       const existingUser = await UserModel.findOne({ username: req.body.username });
-    
+      // existingUser.status = 'online'
       const newUser = {
         username: req.body.username,
-        password: req.body.password, // You might want to hash the password before storing it
+        password: req.body.password,
+        status: 'online' // You might want to hash the password before storing it
       };
       
       if(!existingUser){

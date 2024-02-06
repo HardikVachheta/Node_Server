@@ -2,7 +2,8 @@ import { Schema, model, Document } from "mongoose";
 
 export interface IUser extends Document {
   username: string;
-  password: string
+  password: string;
+  status: string
 }
 
 const userSchema = new Schema<IUser>({
@@ -17,6 +18,10 @@ const userSchema = new Schema<IUser>({
     type: String,
     required: true,
     // minlength: 6,
+  },
+  status:{
+    type:String,
+    default:'online'
   }
 });
 

@@ -68,7 +68,7 @@ io.on("connection", (socket: Socket) => {
       io.to(sendUserSocket).emit("msg-recieve", data.msg);
       console.log("msg-recieve :-",data)
     }
-    console.log(sendUserSocket)
+    console.log("onlineUsers",sendUserSocket)
   });
 
   socket.on("error", (error) => {
