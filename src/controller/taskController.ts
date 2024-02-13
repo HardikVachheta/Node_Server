@@ -224,12 +224,10 @@ export const updateTaskDetail = async (req: Request, res: Response) => {
             .json({ error: "Failed to update task details in Camunda." });
         }
       } else {
-        res
-          .status(404)
-          .json({
-            error:
-              "No task found matching the provided task definition key and process instance.",
-          });
+        res.status(404).json({
+          error:
+            "No task found matching the provided task definition key and process instance.",
+        });
       }
     } else {
       res
@@ -626,11 +624,9 @@ export const getTaskComment = async (req: Request, res: Response) => {
     if (response.status === 200) {
       res.status(200).json(response.data);
     } else {
-      return res
-        .status(500)
-        .json({
-          error: `Failed to retrieve the comment. Camunda response: ${response.status}`,
-        });
+      return res.status(500).json({
+        error: `Failed to retrieve the comment. Camunda response: ${response.status}`,
+      });
     }
   } catch (error: any) {
     console.error("Error retrieving the comment:", error.message);
@@ -668,11 +664,9 @@ export const getHistoryOperation = async (req: Request, res: Response) => {
 
       res.status(200).json(camundaResponseData);
     } else {
-      return res
-        .status(500)
-        .json({
-          error: `Failed to retrieve data from Camunda API. Camunda response: ${response.status}`,
-        });
+      return res.status(500).json({
+        error: `Failed to retrieve data from Camunda API. Camunda response: ${response.status}`,
+      });
     }
   } catch (error: any) {
     console.error("Error retrieving data from Camunda API:", error.message);
@@ -703,11 +697,9 @@ export const getHistoricIdentityLink = async (req: Request, res: Response) => {
     if (response.status === 200) {
       res.status(200).json(response.data);
     } else {
-      return res
-        .status(500)
-        .json({
-          error: `Failed to retrieve data from Camunda API. Camunda response: ${response.status}`,
-        });
+      return res.status(500).json({
+        error: `Failed to retrieve data from Camunda API. Camunda response: ${response.status}`,
+      });
     }
   } catch (error: any) {
     console.error("Error retrieving data from Camunda API:", error.message);
@@ -821,22 +813,18 @@ export const getProcessDefinitionXml = async (req: Request, res: Response) => {
 
       res.status(200).send(camundaResponseData);
     } else {
-      return res
-        .status(500)
-        .json({
-          error: `Failed to retrieve process definition XML from Camunda API. Camunda response: ${response.status}`,
-        });
+      return res.status(500).json({
+        error: `Failed to retrieve process definition XML from Camunda API. Camunda response: ${response.status}`,
+      });
     }
   } catch (error: any) {
     console.error(
       "Error retrieving process definition XML from Camunda API:",
       error.message
     );
-    res
-      .status(500)
-      .json({
-        error: "Failed to retrieve process definition XML from Camunda API",
-      });
+    res.status(500).json({
+      error: "Failed to retrieve process definition XML from Camunda API",
+    });
   }
 };
 
@@ -883,6 +871,52 @@ import UserModel from "../models/userModel"; // Replace with your actual User mo
 //   }
 // };
 
+// export const userLogin = async (req: Request, res: Response) => {
+//   try {
+//     const { username, password } = getCamundaCredentials();
+//     const camundaApiUrl = getCamundaApiUrl();
+
+//     const requestData = {
+//       username: req.body.username,
+//       password: req.body.password,
+//     };
+
+//     const identityVerifyUrl = `${camundaApiUrl}/identity/verify`;
+
+//     const response = await axios.post(identityVerifyUrl, requestData, {
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//     });
+
+//     if (response.status === 200) {
+//       const existingUser = await UserModel.findOne({
+//         username: req.body.username,
+//       });
+//       // existingUser.status = 'online'
+//       const newUser = {
+//         username: req.body.username,
+//         password: req.body.password,
+//         status: "online", // You might want to hash the password before storing it
+//       };
+
+//       if (!existingUser) {
+//         await UserModel.create(newUser);
+//       }
+
+//       res.status(200).json(response.data);
+//     } else {
+//       throw new Error(
+//         `Identity verification failed. Camunda response: ${response.status}`
+//       );
+//     }
+//   } catch (error: any) {
+//     console.error("Error verifying identity:", error);
+//     res.status(500).json({ error: "Identity verification failed" });
+//   }
+// };
+
+
 export const userLogin = async (req: Request, res: Response) => {
   try {
     const { username, password } = getCamundaCredentials();
@@ -897,30 +931,92 @@ export const userLogin = async (req: Request, res: Response) => {
 
     const response = await axios.post(identityVerifyUrl, requestData, {
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     });
 
     if (response.status === 200) {
-      const existingUser = await UserModel.findOne({ username: req.body.username });
-      // existingUser.status = 'online'
-      const newUser = {
+      // Check if the user exists in the database
+      const existingUser = await UserModel.findOne({
         username: req.body.username,
-        password: req.body.password,
-        status: 'online' // You might want to hash the password before storing it
-      };
-      
-      if(!existingUser){
-        await UserModel.create(newUser);
+      });
 
+      if (!existingUser) {
+        // If the user doesn't exist, create a new user document
+        const newUser = new UserModel({
+          username: req.body.username,
+          password: req.body.password,
+          status: "online", // You might want to hash the password before storing it
+        });
+        await newUser.save();
+      } else {
+        // If the user exists, update their status to 'online'
+        existingUser.status = "online";
+        await existingUser.save();
       }
 
       res.status(200).json(response.data);
     } else {
-      throw new Error(`Identity verification failed. Camunda response: ${response.status}`);
+      throw new Error(
+        `Identity verification failed. Camunda response: ${response.status}`
+      );
     }
   } catch (error: any) {
-    console.error('Error verifying identity:', error);
-    res.status(500).json({ error: 'Identity verification failed' });
+    console.error("Error verifying identity:", error);
+    res.status(500).json({ error: "Identity verification failed" });
+  }
+};
+
+
+export const userLogout = async (req: Request, res: Response) => {
+  try {
+    const { username, password } = getCamundaCredentials();
+    const camundaApiUrl = getCamundaApiUrl();
+
+    const requestData = {
+      username: req.body.username,
+      password: '',
+    };
+
+    const identityVerifyUrl = `${camundaApiUrl}/identity/verify`;
+
+    const response = await axios.post(identityVerifyUrl, requestData, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (response.status === 200) {
+      // Find the existing user in the database
+      const existingUser = await UserModel.findOne({
+        username: req.body.username,
+      });
+
+      if (existingUser) {
+        // If the user exists, update their status to 'offline'
+        existingUser.status = "offline";
+        await existingUser.save();
+      }
+
+      res.status(200).json(response.data);
+    } else {
+      throw new Error(
+        `Identity verification failed. Camunda response: ${response.status}`
+      );
+    }
+  } catch (error: any) {
+    console.error("Error verifying identity:", error);
+    res.status(500).json({ error: "Identity verification failed" });
+  }
+};
+
+export const getMongoUser = async ( req: Request, res: Response) => {
+  try {
+    // Fetch user data from MongoDB
+    const users = await UserModel.find();
+    res.json(users);
+  } catch (error: any) {
+    console.error('Error fetching user data:', error);
+    res.status(500).json({ error: 'An error occurred while fetching user data' });
   }
 };

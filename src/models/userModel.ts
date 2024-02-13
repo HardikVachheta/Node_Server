@@ -3,7 +3,8 @@ import { Schema, model, Document } from "mongoose";
 export interface IUser extends Document {
   username: string;
   password: string;
-  status: string
+  status: string;
+  newMessages: Record<string, any>;
 }
 
 const userSchema = new Schema<IUser>({
@@ -17,7 +18,10 @@ const userSchema = new Schema<IUser>({
   password: {
     type: String,
     required: true,
-    // minlength: 6,
+  },
+  newMessages: {
+    type: Object,
+    default: {}
   },
   status:{
     type:String,
